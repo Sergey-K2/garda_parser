@@ -1,23 +1,26 @@
+"""Основной модуль парсера."""
 import json
 import socket
 
 SERVER_ADDRESS = "194.87.46.252"
 SERVER_PORT = 8000
 USERNAME = "Sergey Kozlov"
+SUCCESS_PHRASE = "Nice, you're smart boy!"
 
 
 def parse():
+    """Функция для парсинга данных, полученных от сервера."""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((SERVER_ADDRESS, SERVER_PORT))
     s.recv(1024)
     s.send(USERNAME.encode())
     s.recv(1024)
-    counter = 1
-    while counter != 100:
+    response = ""
+    while SUCCESS_PHRASE not in str(response):
         string = s.recv(1024)
         print(string)
         structured_data = {
-            str(counter): {
+            string[0:5].decode("utf-8").lstrip("0"): {
                 string[28:44].strip().decode("utf-8"): {
                     "date": (string[129:131].decode("utf-8") + "." +
                              string[126:128].decode("utf-8") + "." +
@@ -33,14 +36,14 @@ def parse():
                 }
                 }
         }
-        if structured_data[str(counter)][string[28:44].strip().decode("utf-8")]["duration"] == " sec":
-            structured_data[str(counter)][string[28:44] .strip().decode("utf-8")]["duration"] = "0 sec"
+        if structured_data[string[0:5].decode("utf-8").lstrip("0")][string[28:44].strip().decode("utf-8")]["duration"] == " sec":
+            structured_data[string[0:5].decode("utf-8").lstrip("0")][string[28:44].strip().decode("utf-8")]["duration"] = "0 sec"
 
         print(json.dumps(structured_data, indent=4).encode())
         s.send(json.dumps(structured_data, indent=4).encode())
-        response = s.recv(4096)
-        counter += 1
+        response = s.recv(1028)
         print(response)
+    s.close()
 
 
 if __name__ == "__main__":
