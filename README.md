@@ -18,5 +18,5 @@ python main.py
 
 ## Автор:
 
-Сергей Козлов
+Сергей Козлов\
 GitHub: [Sergey-K2](https://github.com/Sergey-K2)
